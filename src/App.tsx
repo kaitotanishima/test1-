@@ -28,7 +28,19 @@ const shuffle = <T,>(items: T[]) => {
 const pickSessionQuestions = ({ domain, difficulty }: QuizSettings) => {
   const exact = shuffle(questionBank.filter((question) => question.domain === domain && question.difficulty === difficulty));
   const sameDomain = shuffle(questionBank.filter((question) => question.domain === domain && question.difficulty !== difficulty));
-  return [...exact, ...sameDomain].slice(0, sessionLength);
+  return [...exact, ...sameDomain].slice(0, sessionLength).map((question) => {
+    const shuffledChoices = shuffle(
+      question.choices.map((choice, originalIndex) => ({
+        choice,
+        originalIndex,
+      })),
+    );
+    return {
+      ...question,
+      choices: shuffledChoices.map(({ choice }) => choice),
+      correctIndex: shuffledChoices.findIndex(({ originalIndex }) => originalIndex === question.correctIndex),
+    };
+  });
 };
 
 const formatRate = (correct: number, answered: number) => {
@@ -127,7 +139,7 @@ function App() {
             <header className="topbar">
               <div>
                 <p className="eyebrow">Stats Loop</p>
-                <h1>10問で、知識を戻す。</h1>
+                <h1>統計学学習</h1>
               </div>
               <div className="streak-pill" aria-label="連続正解">
                 <Sparkles size={18} />
