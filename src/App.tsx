@@ -27,8 +27,7 @@ const shuffle = <T,>(items: T[]) => {
 
 const pickSessionQuestions = ({ domain, difficulty }: QuizSettings) => {
   const exact = shuffle(questionBank.filter((question) => question.domain === domain && question.difficulty === difficulty));
-  const sameDomain = shuffle(questionBank.filter((question) => question.domain === domain && question.difficulty !== difficulty));
-  return [...exact, ...sameDomain].slice(0, sessionLength).map((question) => {
+  return exact.slice(0, sessionLength).map((question) => {
     const shuffledChoices = shuffle(
       question.choices.map((choice, originalIndex) => ({
         choice,
@@ -76,8 +75,10 @@ function App() {
   }, [stats]);
 
   const selectedPoolCount = useMemo(() => {
-    return questionBank.filter((question) => question.domain === settings.domain).length;
-  }, [settings.domain]);
+    return questionBank.filter(
+      (question) => question.domain === settings.domain && question.difficulty === settings.difficulty,
+    ).length;
+  }, [settings.domain, settings.difficulty]);
 
   const startQuiz = () => {
     setSessionQuestions(pickSessionQuestions(settings));
@@ -210,7 +211,8 @@ function App() {
             )}
 
             <aside className="pool-note">
-              {domainLabels[settings.domain]}の問題プール {selectedPoolCount}問から、10問をランダムに出題します。
+              {domainLabels[settings.domain]}・{difficultyLabels[settings.difficulty]}の問題プール {selectedPoolCount}
+              問から、10問をランダムに出題します。
             </aside>
 
             <div className="bottom-action">
