@@ -1705,6 +1705,24 @@ type DrillPool = {
   concepts: DrillConcept[];
 };
 
+const domainStudyNotes: Record<Domain, string> = {
+  statistics:
+    "統計学では、用語が「母集団の話なのか」「標本から計算した値の話なのか」「不確実性をどう表す話なのか」で分かれます。まず概念がどの階層にあるかを押さえると、似た言葉を区別しやすくなります。",
+  econometrics:
+    "計量経済学では、単に関係があるかではなく「その係数をどう解釈できるか」「因果効果として読むためにどんな仮定が必要か」を意識します。用語を覚えるときも、推定・識別・標準誤差・データ構造のどこに関わる概念かを確認すると理解が安定します。",
+  "machine-learning":
+    "機械学習では、用語が「データの分け方」「モデルの学習方法」「評価指標」「運用時の注意」のどこに属するかを整理すると覚えやすくなります。予測性能だけでなく、未知データで使えるか、リーケージがないか、評価指標が目的に合っているかも一緒に考えます。",
+};
+
+const difficultyStudyNotes: Record<Difficulty, string> = {
+  basic:
+    "基礎レベルでは、まず言葉の定義を自分の言葉で言い換えられることが大切です。式や細かい例外よりも、その用語が何を表していて、何と混同しやすいかを確認しましょう。",
+  standard:
+    "標準レベルでは、定義だけでなく使う場面と注意点まで押さえます。実際の分析では、前提条件やデータの集め方が崩れると、同じ手法でも解釈が大きく変わります。",
+  advanced:
+    "発展レベルでは、手法名を覚えるだけでなく、どんな問題を解くための道具なのか、どの仮定が弱点になりやすいのかを意識します。似た手法との差分を説明できると、理解がかなり深まります。",
+};
+
 const drillPools: DrillPool[] = [
   {
     domain: "statistics",
@@ -1953,7 +1971,9 @@ const drillPools: DrillPool[] = [
 
 const makeDrillQuestions = ({ domain, difficulty, prefix, concepts }: DrillPool): Question[] => {
   return concepts.map((concept, index) => {
-    const distractors = [1, 2, 3].map((offset) => concepts[(index + offset) % concepts.length].definition);
+    const distractorConcepts = [1, 2, 3].map((offset) => concepts[(index + offset) % concepts.length]);
+    const distractors = distractorConcepts.map(({ definition }) => definition);
+    const contrastTerms = distractorConcepts.map(({ term }) => term).join("・");
     return {
       id: `${prefix}-${String(index + 1).padStart(2, "0")}`,
       domain,
@@ -1961,9 +1981,13 @@ const makeDrillQuestions = ({ domain, difficulty, prefix, concepts }: DrillPool)
       prompt: `${concept.term}の説明として最も適切なのはどれですか？`,
       choices: [concept.definition, ...distractors],
       correctIndex: 0,
-      explanation: `${concept.term}は、${concept.definition}です。似た用語と混ざりやすいので、何を対象にした概念なのかを意識して区別します。`,
+      explanation:
+        `${concept.term}は、${concept.definition}です。ここで大事なのは、単語の雰囲気ではなく「何を対象にした概念か」を見ることです。` +
+        `今回の他の選択肢は、${contrastTerms} など別の概念に近い説明です。似た説明が並んでいても、${concept.term}が指している対象・目的・使う場面に合うものを選ぶと判断しやすくなります。`,
       lectureNote:
-        "この問題は用語の定義を確認するドリルです。正解だけを暗記するより、他の選択肢がどの用語の説明に近いかまで見直すと、概念同士の境界がはっきりします。",
+        `${domainStudyNotes[domain]} ${difficultyStudyNotes[difficulty]} ` +
+        `復習するときは、「${concept.term}とは何か」を一文で言えるか、次に「何と間違えやすいか」を言えるか、最後に「どんな場面で使うか」を思い浮かべてください。` +
+        "この3点をセットで確認すると、4択問題だけでなく、実際に分析を読むときにも知識が使いやすくなります。",
       keywords: concept.keywords,
     };
   });

@@ -277,9 +277,12 @@ function App() {
                   {currentAnswerIsCorrect ? <Check size={20} /> : <X size={20} />}
                   <strong>{currentAnswerIsCorrect ? "正解" : "もう一歩"}</strong>
                 </div>
-                <p>{currentQuestion.explanation}</p>
+                <div className="mini-note explanation-note">
+                  <span>解説</span>
+                  <p>{currentQuestion.explanation}</p>
+                </div>
                 <div className="mini-note">
-                  <span>講義ノート</span>
+                  <span>理解のポイント</span>
                   <p>{currentQuestion.lectureNote}</p>
                 </div>
               </section>
