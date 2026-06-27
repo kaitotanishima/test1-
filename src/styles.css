@@ -470,6 +470,11 @@ h2 {
   border: 1px solid #dfe8e2;
 }
 
+.mini-note.term-note {
+  background: #eef7f8;
+  border: 1px solid #d4e9eb;
+}
+
 .mini-note.business {
   background: #fff6eb;
 }

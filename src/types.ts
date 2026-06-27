@@ -10,6 +10,7 @@ export type Question = {
   correctIndex: number;
   explanation: string;
   lectureNote: string;
+  termNote?: string;
   keywords: string[];
 };
 

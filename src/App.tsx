@@ -285,6 +285,12 @@ function App() {
                   <span>理解のポイント</span>
                   <p>{currentQuestion.lectureNote}</p>
                 </div>
+                {currentQuestion.termNote && (
+                  <div className="mini-note term-note">
+                    <span>用語補足</span>
+                    <p>{currentQuestion.termNote}</p>
+                  </div>
+                )}
               </section>
             )}
 
