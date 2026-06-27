@@ -1724,20 +1724,22 @@ const difficultyStudyNotes: Record<Difficulty, string> = {
     "発展レベルでは、手法名を覚えるだけでなく、どんな問題を解くための道具なのか、どの仮定が弱点になりやすいのかを意識します。似た手法との差分を説明できると、理解がかなり深まります。",
 };
 
-const defaultTermNote = (term: string, domain: Domain, difficulty: Difficulty) => {
-  const levelHint =
-    difficulty === "basic"
-      ? "まずは定義を短く言えることを優先すると理解しやすい用語です。"
-      : difficulty === "standard"
-        ? "定義だけでなく、似た概念との違いまで押さえると実際の分析で迷いにくくなります。"
-        : "前提や使う場面まで含めて理解すると、論文や分析記事を読むときに意味を取りやすくなります。";
-  const domainHint =
-    domain === "statistics"
-      ? "統計学では、不確実性・標本・母集団のどこに関わる概念かを確認すると整理しやすくなります。"
-      : domain === "econometrics"
-        ? "計量経済学では、係数解釈・因果推論・データ構造のどこに関わる概念かを意識すると整理しやすくなります。"
-        : "機械学習では、前処理・学習・評価・運用のどこに関わる概念かを意識すると整理しやすくなります。";
-  return `${term}は、名前だけを見ると覚えにくいので「何を扱うための言葉か」から理解するのがおすすめです。${levelHint}${domainHint}`;
+const normalizeDefinitionForTermNote = (definition: string) => {
+  return definition
+    .replace("を指す考え方", "")
+    .replace("を表す考え方", "")
+    .replace("方法を指す考え方", "方法")
+    .replace("処理を指す考え方", "処理")
+    .replace("モデルを指す考え方", "モデル")
+    .replace("値を指す考え方", "値")
+    .replace("観点を指す考え方", "観点")
+    .replace("性質を指す考え方", "性質")
+    .replace("問題を指す考え方", "問題");
+};
+
+const defaultTermNote = (term: string, definition: string) => {
+  const plainDefinition = normalizeDefinitionForTermNote(definition);
+  return `「${term}」は、${plainDefinition}という意味です。問題文でこの言葉が出てきたら、まずこの短い意味に置き換えて読むと、選択肢の違いを比べやすくなります。`;
 };
 
 const drillPools: DrillPool[] = [
@@ -2004,7 +2006,7 @@ const makeDrillQuestions = ({ domain, difficulty, prefix, concepts }: DrillPool)
       lectureNote:
         `${domainStudyNotes[domain]} ${difficultyStudyNotes[difficulty]} ` +
         `復習するときは、「${concept.term}とは何か」を一文で言えるか、次に「何と間違えやすいか」を確認すると、概念同士の境界がはっきりします。`,
-      termNote: concept.termNote ?? defaultTermNote(concept.term, domain, difficulty),
+      termNote: concept.termNote ?? defaultTermNote(concept.term, concept.definition),
       keywords: concept.keywords,
     };
   });
